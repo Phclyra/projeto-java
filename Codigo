@@ -1,0 +1,189 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class BarberShop {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Inicializa os barbeiros
+        List<Barber> barbers = new ArrayList<>();
+        barbers.add(new MaleBarber("Marcos", "Beard Trimming"));
+        barbers.add(new MaleBarber("Pedro", "Haircut"));
+        barbers.add(new MaleBarber("Matheus", "Hair Styling"));
+
+        // Inicializa os serviços com preços
+        List<Service> services = new ArrayList<>();
+        services.add(new Service("Cortar cabelo", 20.0));
+        services.add(new Service("Cabelo e barba", 25.0));
+        services.add(new Service("Estilizar cabelo", 30.0));
+        services.add(new Service("Tratamento capilar", 50.0));
+        services.add(new Service("Hidratação da barba", 40.0));
+
+        System.out.println("Bem-vindo à Barbearia Interativa!");
+        System.out.print("Por favor, insira seu nome: ");
+        String clientName = scanner.nextLine();
+
+        System.out.print("Por favor, insira seu gênero (Masculino/Feminino): ");
+        String clientGender = scanner.nextLine();
+
+        Client client = new Client(clientName, clientGender);
+
+        System.out.println("\nEscolha os serviços desejados:");
+        for (int i = 0; i < services.size(); i++) {
+            System.out.println((i + 1) + ". " + services.get(i).getName() + " - R$" + services.get(i).getPrice());
+        }
+        System.out.println("Digite os números dos serviços separados por vírgula (Ex: 1,3): ");
+        String[] serviceChoices = scanner.nextLine().split(",");
+
+        // Armazena os serviços selecionados
+        List<Service> selectedServices = new ArrayList<>();
+        for (String choice : serviceChoices) {
+            int index = Integer.parseInt(choice.trim()) - 1;
+            selectedServices.add(services.get(index));
+        }
+
+        // Calcula o total
+        double total = 0;
+        for (Service service : selectedServices) {
+            total += service.getPrice();
+        }
+
+        // Aplica desconto para múltiplos serviços
+        if (selectedServices.size() > 1) {
+            double discount = total * 0.10; // 10% de desconto
+            total -= discount;
+            System.out.printf("\nDesconto aplicado: R$%.2f\n", discount);
+        }
+
+        System.out.println("\nEscolha um barbeiro:");
+        for (int i = 0; i < barbers.size(); i++) {
+            System.out.println((i + 1) + ". " + barbers.get(i).getName() + " - Especialidade: " + barbers.get(i).getSpecialty());
+        }
+        System.out.print("Digite o número do barbeiro desejado: ");
+        int barberChoice = scanner.nextInt();
+        scanner.nextLine(); // Consumir quebra de linha
+
+        // Atendimento
+        Barber selectedBarber = barbers.get(barberChoice - 1);
+        System.out.println("\n==== Atendimento ====");
+        System.out.println("Cliente: " + client.getName());
+        System.out.println("Serviços escolhidos:");
+        for (Service service : selectedServices) {
+            System.out.println("- " + service.getName() + " - R$" + service.getPrice());
+        }
+        System.out.println("Barbeiro escolhido: " + selectedBarber.getName());
+        selectedBarber.cutHair(client);
+        selectedBarber.provideSpecialService(client);
+
+        // Seleção da forma de pagamento
+        System.out.println("\nSelecione a forma de pagamento:");
+        System.out.println("1. Dinheiro");
+        System.out.println("2. Débito");
+        System.out.println("3. Crédito");
+        System.out.println("4. PIX");
+        System.out.print("Digite o número da forma de pagamento desejada: ");
+        int paymentChoice = scanner.nextInt();
+        scanner.nextLine(); // Consumir quebra de linha
+
+        String paymentMethod = "";
+        switch (paymentChoice) {
+            case 1:
+                paymentMethod = "Dinheiro";
+                break;
+            case 2:
+                paymentMethod = "Débito";
+                break;
+            case 3:
+                paymentMethod = "Crédito";
+                break;
+            case 4:
+                paymentMethod = "PIX";
+                break;
+            default:
+                System.out.println("Forma de pagamento inválida. Assumindo Dinheiro.");
+                paymentMethod = "Dinheiro";
+        }
+
+        // Finalização do pagamento
+        System.out.printf("\nTotal a pagar: R$%.2f\n", total);
+        System.out.println("Forma de pagamento escolhida: " + paymentMethod);
+        System.out.println("Obrigado por visitar nossa barbearia!");
+        scanner.close();
+    }
+}
+
+// Classe base Barber
+abstract class Barber {
+    private String name;
+    private String specialty;
+
+    public Barber(String name, String specialty) {
+        this.name = name;
+        this.specialty = specialty;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getSpecialty() {
+        return specialty;
+    }
+
+    public void cutHair(Client client) {
+        System.out.println(name + " está cortando o cabelo de " + client.getName() + ".");
+    }
+
+    public abstract void provideSpecialService(Client client);
+}
+
+// Subclasse MaleBarber
+class MaleBarber extends Barber {
+    public MaleBarber(String name, String specialty) {
+        super(name, specialty);
+    }
+
+    @Override
+    public void provideSpecialService(Client client) {
+        System.out.println(getName() + " está oferecendo um serviço especializado: " + getSpecialty() + " para " + client.getName() + ".");
+    }
+}
+
+// Classe Service para gerenciar os serviços disponíveis
+class Service {
+    private String name;
+    private double price;
+
+    public Service(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+}
+
+// Classe Client
+class Client {
+    private String name;
+    private String gender;
+
+    public Client(String name, String gender) {
+        this.name = name;
+        this.gender = gender;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+}
